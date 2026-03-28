@@ -9,7 +9,7 @@ require_relative 'eksa-mination/mocks'
 require_relative 'eksa-mination/cli'
 
 module EksaMination
-  VERSION = "1.0.0"
+  VERSION = "2.0.0"
 
   class << self
     attr_accessor :reporter
