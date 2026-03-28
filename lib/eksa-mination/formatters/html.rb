@@ -1,0 +1,147 @@
+require_relative 'base'
+
+module EksaMination
+  module Formatters
+    class HTML < Base
+      def summarize
+        report_file = "eksa-report.html"
+        File.open(report_file, "w") do |f|
+          f.puts html_header
+          f.puts "<body>"
+          f.puts dashboard_section
+          f.puts "<div class='container'>"
+          f.puts results_section
+          f.puts "</div>"
+          f.puts footer_section
+          f.puts "</body></html>"
+        end
+        puts "\nHTML report generated: #{colorize(report_file, :cyan)}"
+      end
+
+      private
+
+      def html_header
+        <<~HTML
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>Eksa-Mination Test Report</title>
+            <style>
+              :root {
+                --bg: #0f172a;
+                --card-bg: #1e293b;
+                --text: #f1f5f9;
+                --success: #10b981;
+                --failure: #f43f5e;
+                --pending: #f59e0b;
+                --accent: #38bdf8;
+              }
+              body {
+                font-family: 'Inter', sans-serif;
+                background: var(--bg);
+                color: var(--text);
+                margin: 0;
+                padding: 0;
+              }
+              .dashboard {
+                background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+                padding: 40px 20px;
+                text-align: center;
+                border-bottom: 1px solid #334155;
+              }
+              .stats {
+                display: flex;
+                justify-content: center;
+                gap: 30px;
+                margin-top: 20px;
+              }
+              .stat-item {
+                background: var(--card-bg);
+                padding: 20px 40px;
+                border-radius: 12px;
+                box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+              }
+              .stat-value { font-size: 2em; font-weight: bold; }
+              .stat-label { font-size: 0.9em; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
+              
+              .container { max-width: 1000px; margin: 40px auto; padding: 0 20px; }
+              
+              .example-card {
+                background: var(--card-bg);
+                margin-bottom: 15px;
+                border-radius: 8px;
+                padding: 15px 20px;
+                border-left: 4px solid #334155;
+                transition: transform 0.2s;
+              }
+              .example-card:hover { transform: translateX(5px); }
+              .example-card.passed { border-left-color: var(--success); }
+              .example-card.failed { border-left-color: var(--failure); }
+              .example-card.pending { border-left-color: var(--pending); }
+              
+              .description { font-weight: 500; font-size: 1.1em; }
+              .location { font-family: monospace; font-size: 0.8em; color: #64748b; margin-top: 5px; }
+              .error-message {
+                background: #450a0a;
+                color: #fecaca;
+                padding: 15px;
+                border-radius: 6px;
+                margin-top: 10px;
+                font-family: monospace;
+                white-space: pre-wrap;
+                font-size: 0.9em;
+              }
+            </style>
+          </head>
+        HTML
+      end
+
+      def dashboard_section
+        <<~HTML
+          <div class="dashboard">
+            <h1>Eksa-Mination 1.0.0</h1>
+            <div class="stats">
+              <div class="stat-item">
+                <div class="stat-value" style="color: var(--accent)">#{@example_count}</div>
+                <div class="stat-label">Examples</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-value" style="color: var(--success)">#{@example_count - @failures.size - @skipped.size}</div>
+                <div class="stat-label">Passed</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-value" style="color: var(--failure)">#{@failures.size}</div>
+                <div class="stat-label">Failed</div>
+              </div>
+            </div>
+          </div>
+        HTML
+      end
+
+      def results_section
+        @results.map do |res|
+          example = res[:example]
+          status_class = res[:status].to_s
+          
+          error_html = ""
+          if res[:status] == :failed
+            error = res[:error]
+            error_html = "<div class='error-message'>#{error.message}\\n\\n#{error.backtrace.first(5).join("\\n")}</div>"
+          end
+
+          <<~HTML
+            <div class="example-card #{status_class}">
+              <div class="description">#{example.full_description}</div>
+              <div class="location">#{example.file_path}:#{example.line_number}</div>
+              #{error_html}
+            </div>
+          HTML
+        end.join("\n")
+      end
+
+      def footer_section
+        "<div style='text-align: center; color: #475569; margin: 40px 0;'>Generated by Eksa-Mination Testing Framework</div>"
+      end
+    end
+  end
+end

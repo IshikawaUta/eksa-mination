@@ -1,0 +1,23 @@
+# Eksa-Mination Generated Reports
+eksa-report.html
+
+# Editor & LSP Caches
+.ruby-lsp/
+.vscode/
+.idea/
+.DS_Store
+
+# Ruby Caches & Temporary
+*.gem
+*.rbc
+lib/active_support/cache/
+tmp/
+log/
+pkg/
+spec/reports/
+coverage/
+rdoc/
+
+# Local configuration
+.eksa-mination.local
+.env
