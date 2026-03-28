@@ -10,8 +10,9 @@ require_relative 'matchers/respond_to'
 
 module EksaMination
   module Expectations
-    def expect(actual = nil, &block)
-      Expectation.new(actual || block)
+    def expect(actual = :no_actual, &block)
+      actual_value = actual == :no_actual ? block : actual
+      Expectation.new(actual_value)
     end
   end
 
